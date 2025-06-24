@@ -28,47 +28,66 @@
 </head>
 <body>
   <h1>Privacy Policy for CalendarGPT</h1>
-  <p><em>Last updated: June 12, 2025</em></p>
+  <p><em>Last updated: June 24, 2025</em></p>
 
   <div class="section">
     <p><strong>CalendarGPT</strong> is a web-based conversational assistant that allows users to manage their Google Calendar using natural language chat.</p>
-    <p>This privacy policy applies to the application <strong>CalendarGPT</strong>, hosted at <a href="https://bar-schtalman.github.io/calendar-gpt/" >https://bar-schtalman.github.io/calendar-gpt/</a>.</p>
+    <p>This privacy policy applies to the application <strong>CalendarGPT</strong>, hosted at <a href="https://calendargpt.org/">https://calendargpt.org/</a>.</p>
   </div>
 
   <div class="section">
     <h2>🔐 Data Privacy & Security</h2>
     <ul>
-      <li><strong>Authentication & Security:</strong> CalendarGPT uses secure <strong>Google OAuth 2.0</strong> authentication to connect with your Google account. Access tokens are received only after your explicit consent.</li>
-      <li><strong>Session Handling with JWT:</strong> After login, a <strong>JWT (JSON Web Token)</strong> is generated and stored locally in your browser. It is used to authenticate your session securely.</li>
-      <li><strong>Token Expiry:</strong> Tokens expire automatically and are not stored on our servers. No sensitive data is persisted beyond the session.</li>
+      <li><strong>Authentication:</strong> CalendarGPT uses <strong>Google OAuth 2.0</strong> to authenticate users. Access to your Google Calendar is granted only with your explicit consent.</li>
+      <li><strong>Accessed Data:</strong> The application accesses only your calendar data, specifically:
+        <ul>
+          <li>Event titles, descriptions, start and end times, attendees.</li>
+        </ul>
+      </li>
+      <li><strong>Data Storage:</strong> CalendarGPT does not store any Google Calendar data on its servers. All access is ephemeral and scoped to the active user session only.</li>
+      <li><strong>JWT Session:</strong> After authentication, a <strong>JWT token</strong> is stored locally in your browser to maintain your session securely.</li>
+      <li><strong>Data Sharing:</strong> No user data is ever sold, shared, or disclosed to third parties.</li>
     </ul>
   </div>
 
   <div class="section">
     <h2>📅 Calendar Permissions</h2>
-    <p>We request access to the following Google Calendar scopes:</p>
+    <p>The app requests the following Google Calendar scope:</p>
     <ul>
-      <li><code>https://www.googleapis.com/auth/calendar</code> – Allows the app to view, create, edit, and delete events on your behalf.</li>
+      <li><code>https://www.googleapis.com/auth/calendar</code> – to view, create, update, and delete calendar events on your behalf.</li>
     </ul>
-    <p>This access is required for the assistant to respond to your calendar-related chat requests effectively.</p>
+    <p>This access allows the assistant to understand your calendar context and respond to requests such as “create a meeting tomorrow at 3pm” or “delete my 9am call.”</p>
   </div>
 
   <div class="section">
-    <h2>🛡️ Data Usage</h2>
-    <p>CalendarGPT does not store your calendar data. Event information is accessed only during your session and only for the authenticated user. We do not share or sell your data to any third party.</p>
+    <h2>📄 Use of Information</h2>
+    <ul>
+      <li>Your calendar information is accessed only in response to your chat commands.</li>
+      <li>The data is used solely to fulfill your request (e.g., viewing events, creating a new meeting).</li>
+      <li>No calendar data is stored persistently or used for analytics or advertising.</li>
+    </ul>
   </div>
 
   <div class="section">
-    <h2>📍 Application Details</h2>
+    <h2>🧼 Data Retention</h2>
+    <ul>
+      <li>No user data is stored beyond the session duration.</li>
+      <li>All tokens expire automatically, and we do not retain any backups or logs of calendar contents.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>📍 Application Information</h2>
     <ul>
       <li><strong>Application name:</strong> CalendarGPT</li>
-      <li><strong>Homepage:</strong> <a href="https://calendargpt.org/" >https://calendargpt.org//</a></li>
+      <li><strong>Homepage:</strong> <a href="https://calendargpt.org/">https://calendargpt.org/</a></li>
+      <li><strong>Hosted at:</strong> Static frontend via GitHub Pages, backend containerized instance (serverless).</li>
     </ul>
   </div>
 
   <div class="section">
     <h2>📧 Contact</h2>
-    <p>If you have any questions about this Privacy Policy, please contact us at: <a href="mailto:barschtalman@gmail.com">barschtalman@gmail.com</a></p>
+    <p>If you have any questions about this Privacy Policy, please contact: <a href="mailto:barschtalman@gmail.com">barschtalman@gmail.com</a></p>
   </div>
 </body>
 </html>
