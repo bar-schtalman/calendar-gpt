@@ -1,0 +1,39 @@
+name: Deploy App Frontend to S3
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-app:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. משיכת הקוד
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. קונפיגורציית AWS
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            us-east-1
+
+      # 3. אם אין תהליך build, פשוט מדלגים
+      - name: Skip build (pure HTML/JS)
+        run: echo "Nothing to build"
+
+      # 4. סנכרון לתיקיית ה-app ב-S3
+      - name: Sync to S3 (app bucket)
+        run: |
+          aws s3 sync ./ s3://app.calendargpt.org/ --delete
+
+      # 5. (אופציונלי) Invalidate CloudFront cache
+      - name: Invalidate CloudFront for app
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id YOUR_APP_CF_DIST_ID \
+            --paths "/*"
