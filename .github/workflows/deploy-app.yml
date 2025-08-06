@@ -29,7 +29,7 @@ jobs:
       # 4. סנכרון לתיקיית ה-app ב-S3
       - name: Sync to S3 (app bucket)
         run: |
-          aws s3 sync ./ s3://app.calendargpt.org/ --delete
+          aws s3 sync ./ s3://calendargpt.org/ --delete
 
       # 5. (אופציונלי) Invalidate CloudFront cache
       - name: Invalidate CloudFront for app
