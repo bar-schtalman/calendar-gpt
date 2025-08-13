@@ -1,17 +1,31 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Welcome</title>
-    <link rel="stylesheet" href="/styles.css" th:href="@{/styles.css}" />
-  </head>
-  <body>
-    <div class="chat-container text-center">
-      <h1>Welcome to Calendar Chat</h1>
-      <p>Log in with Google to access your calendar.</p>
-      <a href="/oauth2/authorization/google">
-        <button id="authorizeButton">Login with Google</button>
-      </a>
-    </div>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Welcome</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+  <script src="./js/config.js"></script>
+</head>
+<body>
+  <div class="chat-container text-center">
+    <h1>Welcome to Calendar Chat</h1>
+    <p>Log in with Google to access your calendar.</p>
+    <!-- login URL מלא לשרת -->
+    <a href="/oauth2/authorization/google">
+      <button id="authorizeButton">Login with Google</button>
+    </a>
+  </div>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
+      if (token) {
+        localStorage.setItem("jwt", token);
+        window.history.replaceState({}, "", window.location.pathname);
+        window.location.href = "/app/chat.html";
+      }
+    })();
+  </script>
+</body>
 </html>
