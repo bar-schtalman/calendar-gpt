@@ -10,8 +10,7 @@
   <div class="chat-container text-center">
     <h1>Welcome to Calendar Chat</h1>
     <p>Log in with Google to access your calendar.</p>
-    <!-- login URL מלא לשרת -->
-    <a href="/oauth2/authorization/google">
+    <a id="loginLink">
       <button id="authorizeButton">Login with Google</button>
     </a>
   </div>
@@ -20,11 +19,23 @@
     (function () {
       const params = new URLSearchParams(window.location.search);
       const token = params.get("token");
+
       if (token) {
-        localStorage.setItem("jwt", token);
+        // שמירת ה-JWT
+        localStorage.setItem("AUTH_TOKEN", token);
+
+        // ניקוי הכתובת
         window.history.replaceState({}, "", window.location.pathname);
+
+        // מעבר לצ'אט
         window.location.href = "/app/chat.html";
+        return;
       }
+
+      // אם אין token — מגדירים את קישור הלוגין
+      const redirectUri = encodeURIComponent(`${window.APP_CONFIG.FRONTEND_BASE}/app/index.html`);
+      const loginUrl = `${window.APP_CONFIG.API_BASE}/auth/google/login?redirect_uri=${redirectUri}`;
+      document.getElementById("loginLink").setAttribute("href", loginUrl);
     })();
   </script>
 </body>
