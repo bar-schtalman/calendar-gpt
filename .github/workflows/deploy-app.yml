@@ -1,39 +1,43 @@
-name: Deploy App Frontend to S3
+name: Deploy Frontend to S3
 
 on:
   push:
-    branches:
-      - main
+    branches: ["*"]
 
 jobs:
-  deploy-app:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. משיכת הקוד
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      # 2. קונפיגורציית AWS
+      # מגדירים הרשאות AWS (עדיף ככה מאשר להתקין awscli ידנית)
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region:            us-east-1
+          aws-region:            ${{ secrets.AWS_REGION }}
 
-      # 3. אם אין תהליך build, פשוט מדלגים
-      - name: Skip build (pure HTML/JS)
+      # אין build – זה אתר סטטי
+      - name: Skip build (static site)
         run: echo "Nothing to build"
 
-      # 4. סנכרון לתיקיית ה-app ב-S3
-      - name: Sync to S3 (app bucket)
+      # סנכרון תיקיית ה-root של הריפו ל-S3
+      - name: Sync to S3
         run: |
-          aws s3 sync ./ s3://calendargpt.org/ --delete
+          aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME }} \
+            --delete \
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --exclude "README.md"
 
-      # 5. (אופציונלי) Invalidate CloudFront cache
-      - name: Invalidate CloudFront for app
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id E3IGQ3L2QH81O1 \
-            --paths "/*"
+      # אופציונלי: Invalidation ל-CloudFront (אם יש)
+      # הוסף סיקרט בשם CLOUDFRONT_DISTRIBUTION_ID אם תרצה ולהפעיל את הבלוק:
+      # - name: Invalidate CloudFront
+      #   if: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID != '' }}
+      #   run: |
+      #     aws cloudfront create-invalidation \
+      #       --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+      #       --paths "/*"
