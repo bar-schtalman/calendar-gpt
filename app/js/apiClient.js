@@ -1,10 +1,8 @@
-// 🔐 Helper function to return auth header
+// 🔐 Helper: auth header
 function authHeader() {
   const token = localStorage.getItem("AUTH_TOKEN");
-  console.log("JWT Token: ", token);
-  return token ? { 'Authorization': `Bearer ${token}` } : {};
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
-
 
 // 🧠 Send message to chat API
 function sendChatMessage(message, onSuccess, onError) {
@@ -15,13 +13,10 @@ function sendChatMessage(message, onSuccess, onError) {
   }
 
   $.ajax({
-    url: "/chat",
+    url: `${window.APP_CONFIG.API_BASE}/chat`,
     method: "GET",
-    xhrFields: { withCredentials: true }, // ✅ שולח את הקוקי באופן אוטומטי
-    data: {
-      prompt: message,
-      userId: userId,
-    },
+    headers: authHeader(),
+    data: { prompt: message, userId: userId },
     success: onSuccess,
     error: onError,
   });
@@ -30,9 +25,9 @@ function sendChatMessage(message, onSuccess, onError) {
 // ❌ Delete calendar event
 function deleteEvent(calendarId, eventId, element, onSuccess, onError) {
   $.ajax({
-    url: `/api/google-calendar/calendars/${calendarId}/events/${eventId}`,
+    url: `${window.APP_CONFIG.API_BASE}/api/google-calendar/calendars/${calendarId}/events/${eventId}`,
     method: "DELETE",
-    xhrFields: { withCredentials: true }, // ✅
+    headers: authHeader(),
     success: () => onSuccess(element),
     error: onError,
   });
@@ -41,10 +36,9 @@ function deleteEvent(calendarId, eventId, element, onSuccess, onError) {
 // 🔁 Update calendar event
 function updateEvent(calendarId, eventId, eventData, onSuccess, onError) {
   $.ajax({
-    url: `/api/google-calendar/calendars/${calendarId}/events/${eventId}`,
+    url: `${window.APP_CONFIG.API_BASE}/api/google-calendar/calendars/${calendarId}/events/${eventId}`,
     method: "PUT",
-    xhrFields: { withCredentials: true }, // ✅
-    contentType: "application/json",
+    headers: { ...authHeader(), "Content-Type": "application/json" },
     data: JSON.stringify(eventData),
     success: onSuccess,
     error: onError,
@@ -52,16 +46,12 @@ function updateEvent(calendarId, eventId, eventData, onSuccess, onError) {
 }
 
 // 🙋 Fetch current authenticated user
-fetch("/api/me", {
-  credentials: "include", // ✅ for cookies
+fetch(`${window.APP_CONFIG.API_BASE}/api/me`, {
+  headers: authHeader(),
 })
   .then((res) => {
-    if (!res.ok) {
-      throw new Error("Unauthorized");
-    }
+    if (!res.ok) throw new Error("Unauthorized");
     return res.json();
   })
-  .then((user) => {
-    sessionStorage.setItem("userId", user.id);
-  })
+  .then((user) => sessionStorage.setItem("userId", user.id))
   .catch(() => console.error("🔴 Couldn't fetch user session"));
