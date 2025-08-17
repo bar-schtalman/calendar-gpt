@@ -1,15 +1,21 @@
 // 🔐 Helper to inject Bearer token from localStorage
 function authHeader() {
   const token = localStorage.getItem("AUTH_TOKEN");
-  return token ? { 'Authorization': `Bearer ${token}` } : {};
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+// Convenience: get full API url
+function api(path) {
+  const base = (window.APP_CONFIG && window.APP_CONFIG.API_BASE) || "";
+  return `${base}${path}`;
 }
 
 $(document).ready(() => {
-  // ✅ Store JWT from ?token=... into localStorage
+  // ✅ Store JWT from ?token=... into localStorage (just in case this page gets it)
   const urlParams = new URLSearchParams(window.location.search);
-  const tokenFromUrl = urlParams.get('token');
+  const tokenFromUrl = urlParams.get("token");
   if (tokenFromUrl) {
-    localStorage.setItem('AUTH_TOKEN', tokenFromUrl);
+    localStorage.setItem("AUTH_TOKEN", tokenFromUrl);
     const newUrl = window.location.origin + window.location.pathname;
     window.history.replaceState({}, document.title, newUrl);
   }
@@ -29,7 +35,7 @@ $(document).ready(() => {
 
   function loadCalendars() {
     $.ajax({
-      url: '/api/google-calendar/calendars',
+      url: api('/api/google-calendar/calendars'),
       method: 'GET',
       headers: authHeader(),
       success: function (data) {
@@ -71,8 +77,9 @@ $(document).ready(() => {
   }
 
   function updateServerCalendar(calendarId) {
+    // שומר את ה-calendarId בצד השרת (form-encoded כבעבר)
     $.ajax({
-      url: '/api/google-calendar/calendars/select-calendar',
+      url: api('/api/google-calendar/calendars/select-calendar'),
       method: 'POST',
       headers: authHeader(),
       data: { calendarId },
@@ -104,59 +111,53 @@ $(document).ready(() => {
     $("#chatForm button[type=submit]").prop("disabled", true);
     showTypingIndicator();
 
+    $.ajax({
+      url: api("/chat/message"),
+      method: "POST",
+      headers: {
+        ...authHeader(),
+        'Content-Type': 'application/json'
+      },
+      data: JSON.stringify(message),
+      success: (response) => {
+        removeTypingIndicator();
+        $("#chatInput").prop("disabled", false).focus();
+        $("#chatForm button[type=submit]").prop("disabled", false);
 
-$.ajax({
-  url: "/chat/message",
-  method: "POST",
-  headers: {
-    ...authHeader(),
-    'Content-Type': 'application/json'
-  },
-  data: JSON.stringify(message),
-  success: (response) => {
-    removeTypingIndicator();
-    $("#chatInput").prop("disabled", false).focus();;
-    $("#chatForm button[type=submit]").prop("disabled", false);
+        const parsed = JSON.parse(response);
 
+        parsed.forEach((msg) => {
+          if (msg.role === "event") {
+            // === CREATE: msg.content is a stringified array of event objects
+            if (typeof msg.content === "string") {
+              let events;
+              try {
+                events = JSON.parse(msg.content);
+              } catch (e) {
+                console.error("Failed to parse event JSON:", msg.content, e);
+                return;
+              }
+              events.forEach(ev => appendEvent(ev));
 
-    const parsed = JSON.parse(response);
+            // === VIEW: msg itself is an event object
+            } else if (msg.id) {
+              appendEvent(msg);
 
-    parsed.forEach((msg) => {
-      if (msg.role === "event") {
-        // === CREATE path: msg.content is a stringified array of event objects
-        if (typeof msg.content === "string") {
-          let events;
-          try {
-            events = JSON.parse(msg.content);
-          } catch (e) {
-            console.error("Failed to parse event JSON:", msg.content, e);
-            return;
+            } else {
+              console.warn("Unknown event message format:", msg);
+            }
+
+          } else {
+            // normal user/assistant messages
+            const role = msg.role === "ai" ? "assistant" : msg.role;
+            appendMessage(role, msg.content);
           }
-          events.forEach(ev => appendEvent(ev));
-
-        // === VIEW path: msg itself is an event object
-        } else if (msg.id) {
-          appendEvent(msg);
-
-        } else {
-          console.warn("Unknown event message format:", msg);
-        }
-
-      } else {
-        // normal user/assistant messages
-        const role = msg.role === "ai" ? "assistant" : msg.role;
-        appendMessage(role, msg.content);
-      }
-    });
-  },
-
-
-
+        });
+      },
       error: (xhr) => {
-      $("#chatInput").prop("disabled", false).focus();;
-      $("#chatForm button[type=submit]").prop("disabled", false);
-
-      removeTypingIndicator();
+        $("#chatInput").prop("disabled", false).focus();
+        $("#chatForm button[type=submit]").prop("disabled", false);
+        removeTypingIndicator();
 
         console.error("❌ Chat API error:", xhr.responseText);
         appendMessage("ai", "❌ Error contacting server");
@@ -164,60 +165,56 @@ $.ajax({
     });
   });
 
-$("#showActivityBtn").on("click", function () {
-  $.ajax({
-    url: "/api/events/history",
-    method: "GET",
-    headers: authHeader(),
-    success: function (data) {
-      const activityList = $("#activityItems");
-      activityList.empty();
+  $("#showActivityBtn").on("click", function () {
+    $.ajax({
+      url: api("/api/events/history"),
+      method: "GET",
+      headers: authHeader(),
+      success: function (data) {
+        const activityList = $("#activityItems");
+        activityList.empty();
 
-      if (data.length === 0) {
-        activityList.append("<li class='list-group-item'>No recent activity found.</li>");
-      } else {
-        data.forEach(activity => {
-const cleanContext = cleanEventContext(activity.eventContext);
-const icon = getActivityIcon(activity.actionDescription || "");
+        if (data.length === 0) {
+          activityList.append("<li class='list-group-item'>No recent activity found.</li>");
+        } else {
+          data.forEach(activity => {
+            const cleanContext = cleanEventContext(activity.eventContext);
+            const icon = getActivityIcon(activity.actionDescription || "");
 
-const item = `
-  <li class="list-group-item">
-    <strong>${icon} ${cleanContext}</strong>
-    <span>${activity.actionDescription}</span>
-    <br><small>${new Date(activity.timestamp).toLocaleString()}</small>
-  </li>`;
+            const item = `
+              <li class="list-group-item">
+                <strong>${icon} ${cleanContext}</strong>
+                <span>${activity.actionDescription}</span>
+                <br><small>${new Date(activity.timestamp).toLocaleString()}</small>
+              </li>`;
+            activityList.append(item);
+          });
+        }
 
-
-          activityList.append(item);
-        });
+        $("#activityList").toggle(); // Toggle open/close
+      },
+      error: function (xhr) {
+        console.error("❌ Failed to load activity history:", xhr.responseText);
+        alert("❌ Failed to load activity history. Check console.");
       }
-
-      $("#activityList").toggle(); // Toggle open/close
-    },
-    error: function (xhr) {
-      console.error("❌ Failed to load activity history:", xhr.responseText);
-      alert("❌ Failed to load activity history. Check console.");
-    }
+    });
   });
-});
-function getActivityIcon(action) {
-  const a = action.toLowerCase();
-  if (a.includes("deleted")) return "🗑️";
-  if (a.includes("changed") || a.includes("guest")) return "✏️";
-  return "📅";
-}
 
-function cleanEventContext(context) {
-  // Remove any leading emoji or symbols (up to 2 chars + space)
-  return context.replace(/^[^\w\d\s]{1,2}\s*/, '');
-}
+  function getActivityIcon(action) {
+    const a = action.toLowerCase();
+    if (a.includes("deleted")) return "🗑️";
+    if (a.includes("changed") || a.includes("guest")) return "✏️";
+    return "📅";
+  }
 
+  function cleanEventContext(context) {
+    // Remove any leading emoji or symbols (up to 2 chars + space)
+    return context.replace(/^[^\w\d\s]{1,2}\s*/, '');
+  }
 
-
-
-  // 🛠️ ✅ Important: Only call calendars after JWT confirmed and server is ready
+  // 🛠️ ✅ Ping קטן לפני טעינת לוחות: אם OK — נטען לוחות
   $.ajax({
-    url: "/api/events/history",
+    url: api("/api/events/history"),
     method: "GET",
     headers: authHeader(),
     success: function () {
