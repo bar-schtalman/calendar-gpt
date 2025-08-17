@@ -1,1 +1,4 @@
-window.API_BASE_URL = "http://54.164.151.171:8080";
+window.APP_CONFIG = {
+  FRONTEND_BASE: 'https://calendargpt.org',
+  API_BASE: '/api'   // חשוב: יחסי לדומיין
+};
