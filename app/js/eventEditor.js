@@ -1,6 +1,13 @@
+// 🔐 Authorization header from localStorage
 function authHeader() {
   const token = localStorage.getItem("AUTH_TOKEN");
-  return token ? { 'Authorization': `Bearer ${token}` } : {};
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+// 🧭 Helper: prefix API base
+function api(path) {
+  const base = (window.APP_CONFIG && window.APP_CONFIG.API_BASE) || "";
+  return `${base}${path}`;
 }
 
 let currentEditingEvent = null;
@@ -9,12 +16,12 @@ function openEditModal(event) {
   currentEditingEvent = event;
 
   $.ajax({
-    url: `/api/events/${event.id}`,
+    url: api(`/api/events/${event.id}`),
     method: "GET",
-    xhrFields: { withCredentials: true }, // ✅ שולח את ה־cookie עם הבקשה
+    headers: authHeader(),
     success: function (data) {
-      const [startDate, startTime] = data.start.split(" ");
-      const [endDate, endTime] = data.end.split(" ");
+      const [startDate, startTime] = (data.start || "").split(" ");
+      const [endDate, endTime] = (data.end || "").split(" ");
 
       $("#eventSummary").val(data.summary || "");
       $("#startDate").val(formatDateForInput(startDate));
@@ -25,7 +32,7 @@ function openEditModal(event) {
       $("#editModal").modal("show");
     },
     error: function (xhr) {
-      alert("❌ Failed to fetch event: " + xhr.responseText);
+      alert("❌ Failed to fetch event: " + (xhr.responseText || xhr.statusText));
     },
   });
 }
@@ -50,35 +57,38 @@ $("#saveEdit").click(() => {
   };
 
   $.ajax({
-    url: `/api/events/update/${currentEditingEvent.id}`,
+    url: api(`/api/events/update/${currentEditingEvent.id}`),
     method: "PUT",
-    xhrFields: { withCredentials: true }, // ✅ שולח את ה־cookie
-    contentType: "application/json",
+    headers: {
+      ...authHeader(),
+      "Content-Type": "application/json",
+    },
     data: JSON.stringify(updatedEvent),
     success: () => {
       $("#editModal").modal("hide");
       alert("✅ Event updated!");
 
+      // ריענון האירוע המעודכן מהשרת
       $.ajax({
-        url: `/api/events/${currentEditingEvent.id}`,
+        url: api(`/api/events/${currentEditingEvent.id}`),
         method: "GET",
-        xhrFields: { withCredentials: true }, // ✅ שולח את ה־cookie
+        headers: authHeader(),
         success: (updatedData) => {
-          const [startDateStr, startTimeStr] = updatedData.start.split(" ");
-          const [endDateStr, endTimeStr] = updatedData.end.split(" ");
+          const [startDateStr, startTimeStr] = (updatedData.start || "").split(" ");
+          const [endDateStr, endTimeStr] = (updatedData.end || "").split(" ");
 
-          updatedData.date = startDateStr;
-          updatedData.time = `${startTimeStr} - ${endTimeStr}`;
+          updatedData.date = startDateStr || "";
+          updatedData.time = (startTimeStr && endTimeStr) ? `${startTimeStr} - ${endTimeStr}` : "";
 
           refreshEventInUI(updatedData);
         },
         error: (xhr) => {
-          console.error("❌ Failed to fetch updated event:", xhr.responseText);
+          console.error("❌ Failed to fetch updated event:", xhr.responseText || xhr.statusText);
         },
       });
     },
     error: (xhr) => {
-      alert("❌ Update failed: " + xhr.responseText);
+      alert("❌ Update failed: " + (xhr.responseText || xhr.statusText));
     },
   });
 });
@@ -86,7 +96,9 @@ $("#saveEdit").click(() => {
 function formatDateForInput(dateStr) {
   if (!dateStr) return "";
   const [day, month, year] = dateStr.split("-");
-  return `${year}-${month}-${day}`;
+  // server returns DD-MM-YYYY; convert to YYYY-MM-DD for <input type="date">
+  if (year && month && day) return `${year}-${month}-${day}`;
+  return dateStr; // fallback
 }
 
 function formatTimeForInput(timeStr) {
