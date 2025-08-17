@@ -1,6 +1,12 @@
+"use strict";
+
+// Base URL מהקובץ config.js (אם נטען). אם אין – נשתמש בנתיבים יחסיים.
+const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE) || window.API_BASE || "";
+
+// 🔐 Authorization header מתוך localStorage
 function authHeader() {
   const token = localStorage.getItem("AUTH_TOKEN");
-  return token ? { 'Authorization': `Bearer ${token}` } : {};
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 let currentEventForGuest = null;
@@ -24,26 +30,20 @@ $("#saveGuestsBtn").on("click", () => {
     .map((e) => e.trim())
     .filter((e) => e);
 
-  if (
-    !currentEventForGuest ||
-    !currentEventForGuest.id ||
-    guestEmails.length === 0
-  ) {
+  if (!currentEventForGuest || !currentEventForGuest.id || guestEmails.length === 0) {
     alert("Please enter at least one valid email.");
     return;
   }
 
   $.ajax({
-    url: `/api/events/${currentEventForGuest.id}/guests`,
+    url: `${API_BASE}/api/events/${currentEventForGuest.id}/guests`,
     method: "PUT",
-xhrFields: { withCredentials: true },
+    headers: authHeader(),
     contentType: "application/json",
     data: JSON.stringify(guestEmails),
     success: function (updatedEvent) {
       $("#guestModal").modal("hide");
-      $(`#event-${updatedEvent.id}`).replaceWith(
-        window.renderEventCard(updatedEvent),
-      );
+      $(`#event-${updatedEvent.id}`).replaceWith(window.renderEventCard(updatedEvent));
     },
     error: function (xhr) {
       alert("Failed to add guests: " + xhr.responseText);
@@ -59,15 +59,13 @@ $(document).on("click", ".remove-guest-btn", function () {
   if (!confirm(`Remove guest: ${email}?`)) return;
 
   $.ajax({
-    url: `/api/events/${eventId}/guests/remove`,
+    url: `${API_BASE}/api/events/${eventId}/guests/remove`,
     method: "PUT",
-     xhrFields: { withCredentials: true },
+    headers: authHeader(),
     contentType: "application/json",
     data: JSON.stringify([email]),
     success: function (updatedEvent) {
-      $(`#event-${updatedEvent.id}`).replaceWith(
-        window.renderEventCard(updatedEvent),
-      );
+      $(`#event-${updatedEvent.id}`).replaceWith(window.renderEventCard(updatedEvent));
     },
     error: function (xhr) {
       alert("Failed to remove guest: " + xhr.responseText);
@@ -97,9 +95,10 @@ $(document).ready(function () {
       source: function (request, response) {
         const term = extractLastEmailFragment(request.term);
         $.ajax({
-          url: "/api/contacts/search",
+          url: `${API_BASE}/api/contacts/search`,
+          method: "GET",
+          headers: authHeader(),
           dataType: "json",
-          xhrFields: { withCredentials: true },
           data: { query: term },
           success: function (data) {
             console.log("📨 Contacts data returned from server:", data);
