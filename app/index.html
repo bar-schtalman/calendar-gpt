@@ -34,7 +34,9 @@
 
       // אם אין token — מגדירים את קישור הלוגין
       const redirectUri = encodeURIComponent(`${window.APP_CONFIG.FRONTEND_BASE}/app/index.html`);
-      const loginUrl = `${window.APP_CONFIG.API_BASE}/oauth2/authorization/google?redirect_uri=${redirectUri}`;
+      const base = (window.APP_CONFIG.API_BASE || '').replace(/\/+$/,'');
+      const API_BASE = base.endsWith('/api') ? base : base + '/api';
+      const loginUrl = `${API_BASE}/oauth2/authorization/google?redirect_uri=${redirectUri}`;
       document.getElementById("loginLink").setAttribute("href", loginUrl);
     })();
   </script>
