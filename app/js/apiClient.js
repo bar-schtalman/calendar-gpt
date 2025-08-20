@@ -22,7 +22,7 @@ function sendChatMessage(message, onSuccess, onError) {
   }
 
   $.ajax({
-    url: `${window.APP_CONFIG.API_BASE}/chat`,
+    url: api('/chat'),
     method: "GET",
     headers: authHeader(),
     data: { prompt: message, userId: userId },
@@ -34,7 +34,7 @@ function sendChatMessage(message, onSuccess, onError) {
 // ❌ Delete calendar event
 function deleteEvent(calendarId, eventId, element, onSuccess, onError) {
   $.ajax({
-    url: `${window.APP_CONFIG.API_BASE}/api/google-calendar/calendars/${calendarId}/events/${eventId}`,
+    url: api(`/google-calendar/calendars/${calendarId}/events/${eventId}`),
     method: "DELETE",
     headers: authHeader(),
     success: () => onSuccess(element),
@@ -45,9 +45,11 @@ function deleteEvent(calendarId, eventId, element, onSuccess, onError) {
 // 🔁 Update calendar event
 function updateEvent(calendarId, eventId, eventData, onSuccess, onError) {
   $.ajax({
-    url: `${window.APP_CONFIG.API_BASE}/api/google-calendar/calendars/${calendarId}/events/${eventId}`,
+    url: api(`/google-calendar/calendars/${calendarId}/events/${eventId}`),
     method: "PUT",
     headers: { ...authHeader(), "Content-Type": "application/json" },
+    headers: { ...authHeader() },
+    contentType: "application/json",
     data: JSON.stringify(eventData),
     success: onSuccess,
     error: onError,
