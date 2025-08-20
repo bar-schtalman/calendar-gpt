@@ -201,7 +201,7 @@
       if (logoutBtn) {
         logoutBtn.addEventListener("click", () => {
           // For JWT-only: just clear token and go back to login
-          try { localStorage.removeItem("jwt"); } catch (e) {}
+          try { localStorage.removeItem("AUTH_TOKEN"); } catch (e) {}
           window.location.href = "/app/index.html";
         });
       }
