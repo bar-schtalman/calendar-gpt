@@ -23,6 +23,7 @@
       if (token) {
         // שמירת ה-JWT
         localStorage.setItem("AUTH_TOKEN", token);
+        console.log("token - index.html");
 
         // ניקוי הכתובת
         const clean = window.location.origin + window.location.pathname;
