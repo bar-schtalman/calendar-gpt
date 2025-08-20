@@ -55,7 +55,7 @@ function updateEvent(calendarId, eventId, eventData, onSuccess, onError) {
 }
 
 // 🙋 Fetch current authenticated user
-fetch(`${window.APP_CONFIG.API_BASE}/api/me`, {
+fetch(api('/me'), {
   headers: authHeader(),
 })
   .then((res) => {
