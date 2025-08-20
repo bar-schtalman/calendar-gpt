@@ -1,5 +1,13 @@
 "use strict";
-
+function api(path) {
+  const base = ((window.APP_CONFIG && window.APP_CONFIG.API_BASE) || "").replace(/\/+$/, "");
+  let p = path || "/";
+  // אם העברת /api/... – נקלף את /api כי ה-BASE כבר כולל /api
+  p = p.startsWith("/api/") ? p.slice(4) : p;
+  // נוודא שיש '/' יחיד בין base ל-path
+  if (!p.startsWith("/")) p = "/" + p;
+  return base + p;
+}
 // Base URL מהקובץ config.js (אם נטען). אם אין – נשתמש בנתיבים יחסיים.
 const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE) || window.API_BASE || "";
 
