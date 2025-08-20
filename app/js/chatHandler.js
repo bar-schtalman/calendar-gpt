@@ -6,16 +6,12 @@ function api(path) {
   // נוודא שיש '/' יחיד בין base ל-path
   if (!p.startsWith("/")) p = "/" + p;
   return base + p;
-}// 🔐 Helper to inject Bearer token from localStorage
+}
+
+// 🔐 Helper to inject Bearer token from localStorage
 function authHeader() {
   const token = localStorage.getItem("AUTH_TOKEN");
   return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
-// Convenience: get full API url
-function api(path) {
-  const base = (window.APP_CONFIG && window.APP_CONFIG.API_BASE) || "";
-  return `${base}${path}`;
 }
 
 $(document).ready(() => {
@@ -30,8 +26,8 @@ $(document).ready(() => {
 
   const jwtToken = localStorage.getItem("AUTH_TOKEN");
   if (!jwtToken) {
-    console.error("❌ No JWT token found. Cannot proceed.");
-    alert("Authentication failed. Please login again.");
+    // עדיף להפנות ל-login במקום alert
+    window.location.href = "/app/index.html";
     return;
   }
   console.log("🛡️ JWT Token loaded:", jwtToken);
@@ -43,7 +39,7 @@ $(document).ready(() => {
 
   function loadCalendars() {
     $.ajax({
-      url: api('/api/google-calendar/calendars'),
+      url: api('/google-calendar/calendars'),
       method: 'GET',
       headers: authHeader(),
       success: function (data) {
@@ -87,7 +83,7 @@ $(document).ready(() => {
   function updateServerCalendar(calendarId) {
     // שומר את ה-calendarId בצד השרת (form-encoded כבעבר)
     $.ajax({
-      url: api('/api/google-calendar/calendars/select-calendar'),
+      url: api('/google-calendar/calendars/select-calendar'),
       method: 'POST',
       headers: authHeader(),
       data: { calendarId },
@@ -122,10 +118,8 @@ $(document).ready(() => {
     $.ajax({
       url: api("/chat/message"),
       method: "POST",
-      headers: {
-        ...authHeader(),
-        'Content-Type': 'application/json'
-      },
+      headers: { ...authHeader() },
+      contentType: "application/json",
       data: JSON.stringify(message),
       success: (response) => {
         removeTypingIndicator();
@@ -175,7 +169,7 @@ $(document).ready(() => {
 
   $("#showActivityBtn").on("click", function () {
     $.ajax({
-      url: api("/api/events/history"),
+      url: api("/events/history"),
       method: "GET",
       headers: authHeader(),
       success: function (data) {
@@ -222,7 +216,7 @@ $(document).ready(() => {
 
   // 🛠️ ✅ Ping קטן לפני טעינת לוחות: אם OK — נטען לוחות
   $.ajax({
-    url: api("/api/events/history"),
+    url: api("/events/history"),
     method: "GET",
     headers: authHeader(),
     success: function () {
