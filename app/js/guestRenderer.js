@@ -1,4 +1,5 @@
 "use strict";
+
 function api(path) {
   const base = ((window.APP_CONFIG && window.APP_CONFIG.API_BASE) || "").replace(/\/+$/, "");
   let p = path || "/";
@@ -8,8 +9,6 @@ function api(path) {
   if (!p.startsWith("/")) p = "/" + p;
   return base + p;
 }
-// Base URL מהקובץ config.js (אם נטען). אם אין – נשתמש בנתיבים יחסיים.
-const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE) || window.API_BASE || "";
 
 // 🔐 Authorization header מתוך localStorage
 function authHeader() {
@@ -44,7 +43,7 @@ $("#saveGuestsBtn").on("click", () => {
   }
 
   $.ajax({
-    url: `${API_BASE}/api/events/${currentEventForGuest.id}/guests`,
+    url: api(`/events/${currentEventForGuest.id}/guests`),
     method: "PUT",
     headers: authHeader(),
     contentType: "application/json",
@@ -54,7 +53,7 @@ $("#saveGuestsBtn").on("click", () => {
       $(`#event-${updatedEvent.id}`).replaceWith(window.renderEventCard(updatedEvent));
     },
     error: function (xhr) {
-      alert("Failed to add guests: " + xhr.responseText);
+      alert("Failed to add guests: " + (xhr.responseText || xhr.statusText));
     },
   });
 });
@@ -67,7 +66,7 @@ $(document).on("click", ".remove-guest-btn", function () {
   if (!confirm(`Remove guest: ${email}?`)) return;
 
   $.ajax({
-    url: `${API_BASE}/api/events/${eventId}/guests/remove`,
+    url: api(`/events/${eventId}/guests/remove`),
     method: "PUT",
     headers: authHeader(),
     contentType: "application/json",
@@ -76,7 +75,7 @@ $(document).on("click", ".remove-guest-btn", function () {
       $(`#event-${updatedEvent.id}`).replaceWith(window.renderEventCard(updatedEvent));
     },
     error: function (xhr) {
-      alert("Failed to remove guest: " + xhr.responseText);
+      alert("Failed to remove guest: " + (xhr.responseText || xhr.statusText));
     },
   });
 });
@@ -103,7 +102,7 @@ $(document).ready(function () {
       source: function (request, response) {
         const term = extractLastEmailFragment(request.term);
         $.ajax({
-          url: `${API_BASE}/api/contacts/search`,
+          url: api(`/contacts/search`),
           method: "GET",
           headers: authHeader(),
           dataType: "json",
