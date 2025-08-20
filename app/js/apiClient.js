@@ -48,7 +48,6 @@ function updateEvent(calendarId, eventId, eventData, onSuccess, onError) {
     url: api(`/google-calendar/calendars/${calendarId}/events/${eventId}`),
     method: "PUT",
     headers: { ...authHeader(), "Content-Type": "application/json" },
-    headers: { ...authHeader() },
     contentType: "application/json",
     data: JSON.stringify(eventData),
     success: onSuccess,
