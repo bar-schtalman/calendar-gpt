@@ -25,7 +25,7 @@
   <script>
     (function () {
       // 1) Require JWT to view this page
-      const token = localStorage.getItem("jwt");
+      const token = localStorage.getItem("AUTH_TOKEN");
       if (!token) {
         window.location.href = "/app/index.html";
         return;
