@@ -38,7 +38,7 @@ const base = (window.APP_CONFIG.API_BASE || '').replace(/\/+$/, '');
 const API_BASE = base.endsWith('/api') ? base : base + '/api';
 
 // בלי query string בכלל:
-const next = encodeURIComponent(`${window.APP_CONFIG.FRONTEND_BASE}/index.html`);
+const next = encodeURIComponent(`${window.APP_CONFIG.FRONTEND_BASE}/app/index.html`);
 const loginUrl = `${API_BASE}/auth/google/login?next=${next}`;
 document.getElementById("loginLink").href = loginUrl;
 
