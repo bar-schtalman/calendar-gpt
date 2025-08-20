@@ -1,22 +1,19 @@
+// ✅ API URL helper – מנרמל BASE ומונע /api/api כפול
 function api(path) {
   const base = ((window.APP_CONFIG && window.APP_CONFIG.API_BASE) || "").replace(/\/+$/, "");
   let p = path || "/";
-  // אם העברת /api/... – נקלף את /api כי ה-BASE כבר כולל /api
-  p = p.startsWith("/api/") ? p.slice(4) : p;
-  // נוודא שיש '/' יחיד בין base ל-path
-  if (!p.startsWith("/")) p = "/" + p;
+  if (p.startsWith("/api/")) p = p.slice(4);  // אם נתת /api/ – נקלף כי ה-BASE כבר כולל /api
+  if (!p.startsWith("/")) p = "/" + p;        // מבטיח '/' יחיד בין base ל-path
   return base + p;
-}// 🔐 Authorization header from localStorage
+}
+
+// 🔐 Authorization header from localStorage (אותו KEY בכל הפרויקט)
 function authHeader() {
   const token = localStorage.getItem("AUTH_TOKEN");
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-// 🧭 Prefix API base from global config
-function api(path) {
-  const base = (window.APP_CONFIG && window.APP_CONFIG.API_BASE) || "";
-  return `${base}${path}`;
-}
+// --- UI helpers ---
 
 function appendMessage(sender, text) {
   const msgDiv = $("<div></div>")
@@ -41,7 +38,7 @@ function appendEvent(event) {
     .html("❌")
     .on("click", () => {
       $.ajax({
-        url: api(`/api/events/delete/${event.id}`),
+        url: api(`/events/delete/${event.id}`),
         method: "DELETE",
         headers: authHeader(),
         success: () => {
@@ -55,14 +52,14 @@ function appendEvent(event) {
 
   const editBtn = $("<button class='edit-event btn btn-primary btn-sm'></button>")
     .html("✏️")
-    .on("click", () => openEditModal(event));
+    .on("click", () => openEditModal(event));   // מוגדר ב-eventEditor.js
 
   const guestBtn = $("<button class='guest-event btn btn-info btn-sm'></button>")
     .html("➕")
-    .on("click", () => openGuestModal(event));
+    .on("click", () => openGuestModal(event));  // מוגדר ב-guestRenderer.js
 
   const buttons = $("<div class='button-container'></div>").append(editBtn, deleteBtn, guestBtn);
-  const guestSection = renderGuestSection(event);
+  const guestSection = renderGuestSection(event); // פונקציה מ-guestRenderer.js שמחזירה DOM/HTML
 
   card.append(summary, dateRow, buttons, guestSection);
   $("#chatWindow").append(card);
@@ -85,7 +82,7 @@ function refreshEventInUI(event) {
     .html("❌")
     .on("click", () => {
       $.ajax({
-        url: api(`/api/events/delete/${event.id}`),
+        url: api(`/events/delete/${event.id}`),
         method: "DELETE",
         headers: authHeader(),
         success: () => {
