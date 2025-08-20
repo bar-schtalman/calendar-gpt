@@ -27,8 +27,12 @@
       // 1) Require JWT to view this page
       const token = localStorage.getItem("AUTH_TOKEN");
       if (!token) {
+        console.log("token not found");
         window.location.href = "/app/index.html";
         return;
+      }
+      else{
+        console.log("token found");
       }
 
       // 2) A single helper for all API calls (uses API_BASE from config.js)
