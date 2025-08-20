@@ -6,16 +6,12 @@ function api(path) {
   // נוודא שיש '/' יחיד בין base ל-path
   if (!p.startsWith("/")) p = "/" + p;
   return base + p;
-}// 🔐 Authorization header from localStorage
+}
+
+// 🔐 Authorization header from localStorage
 function authHeader() {
   const token = localStorage.getItem("AUTH_TOKEN");
   return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
-// 🧭 Helper: prefix API base
-function api(path) {
-  const base = (window.APP_CONFIG && window.APP_CONFIG.API_BASE) || "";
-  return `${base}${path}`;
 }
 
 let currentEditingEvent = null;
@@ -24,7 +20,7 @@ function openEditModal(event) {
   currentEditingEvent = event;
 
   $.ajax({
-    url: api(`/api/events/${event.id}`),
+    url: api(`/events/${event.id}`),
     method: "GET",
     headers: authHeader(),
     success: function (data) {
@@ -65,12 +61,10 @@ $("#saveEdit").click(() => {
   };
 
   $.ajax({
-    url: api(`/api/events/update/${currentEditingEvent.id}`),
+    url: api(`/events/update/${currentEditingEvent.id}`),
     method: "PUT",
-    headers: {
-      ...authHeader(),
-      "Content-Type": "application/json",
-    },
+    headers: { ...authHeader() },
+    contentType: "application/json",
     data: JSON.stringify(updatedEvent),
     success: () => {
       $("#editModal").modal("hide");
@@ -78,7 +72,7 @@ $("#saveEdit").click(() => {
 
       // ריענון האירוע המעודכן מהשרת
       $.ajax({
-        url: api(`/api/events/${currentEditingEvent.id}`),
+        url: api(`/events/${currentEditingEvent.id}`),
         method: "GET",
         headers: authHeader(),
         success: (updatedData) => {
