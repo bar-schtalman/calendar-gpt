@@ -1,0 +1,55 @@
+/* === CalendarGPT UI Enhancements (non-breaking) === */
+
+/* Base & layout */
+html, body { height: 100%; }
+body { margin: 0; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
+
+/* Index (welcome) page */
+.chat-container.text-center {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+#authorizeButton, .btn-primary {
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+/* Chat page layout */
+#chatPage { min-height: 100vh; display: flex; flex-direction: column; }
+#chatPage > .d-flex { flex: 1; min-height: 0; } /* allow children to scroll */
+#chatPage .flex-grow-1 { display: flex; flex-direction: column; min-height: 0; }
+
+/* Chat window occupies remaining space, with scroll */
+#chatWindow {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1rem;
+  background: #f9fafb;
+  border: 1px solid #eee;
+  border-radius: 12px;
+}
+
+/* Sidebar (Recent Activity) scrolls and matches chat height */
+.sidebar {
+  max-height: 100%;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  background: #fff;
+  padding: 1rem;
+  border-radius: 12px;
+}
+
+/* Chat form stays pinned under chat window */
+#chatForm { margin-top: .5rem; }
+
+/* Responsive: stack columns on smaller screens */
+@media (max-width: 992px) {
+  #chatPage > .d-flex { flex-direction: column; }
+  .sidebar { order: -1; width: 100% !important; margin: 0 0 12px 0 !important; }
+}
