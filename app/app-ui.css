@@ -53,3 +53,114 @@ body { margin: 0; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
   #chatPage > .d-flex { flex-direction: column; }
   .sidebar { order: -1; width: 100% !important; margin: 0 0 12px 0 !important; }
 }
+/* ===== Mobile polish: chat wider, compact activity, tidy event card ===== */
+
+/* 1) תן לצ'אט את כל הרוחב במובייל, והעבר את ה-sidebar למעלה כפס קטן */
+@media (max-width: 768px) {
+  /* מוודא שבלוק הפריסה השני (sidebar + chat) נערם אנכית */
+  #chatPage .mt-3.d-flex { 
+    flex-direction: column; 
+    gap: 12px;
+  }
+
+  /* מצמצם את ה-sidebar לפס קומפקטי מעל הצ'אט */
+  .sidebar {
+    order: -1;
+    align-self: flex-start;
+    width: auto !important;        /* עוקף ה-inline 250px */
+    max-width: 100%;
+    margin: 0 0 8px 0 !important;
+    padding: .5rem .75rem;
+    border-radius: 12px;
+  }
+
+  /* כפתור ה-Activity קטן ולא תופס רוחב */
+  #showActivityBtn {
+    width: auto;
+    padding: .45rem .7rem;
+    font-size: .9rem;
+    line-height: 1.1;
+    white-space: nowrap;           /* לא לשבור לשתי שורות */
+  }
+
+  /* כותרת קטנה יותר שלא שוברת את הפריסה */
+  #chatPage h2 {
+    font-size: 1.4rem;
+    line-height: 1.2;
+    margin-bottom: 0;
+  }
+}
+
+/* 2) הצ'אט עצמו – מלוא הגובה והרחבה גם ב-iOS */
+#chatPage { 
+  min-height: 100dvh;             /* עדיף על 100vh בספארי מובייל */
+}
+#chatPage > .d-flex { 
+  flex: 1; 
+  min-height: 0; 
+}
+#chatPage .flex-grow-1 { 
+  display: flex; 
+  flex-direction: column; 
+  min-height: 0; 
+}
+#chatWindow { 
+  flex: 1; 
+  min-height: 0; 
+  overflow-y: auto; 
+  padding: 1rem; 
+}
+
+/* 3) כרטיס אירוע – פריסה מסודרת, אייקונים מימין, בלי חפיפות */
+.event-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;  /* טקסט | אייקונים */
+  gap: .5rem 1rem;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  padding: 1rem;
+}
+
+/* מיכל הכפתורים בכרטיס – שורה נקייה עם ריווח */
+.event-card .button-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* כפתורים בכרטיס קטנים ונקיים */
+.event-card .button-container .btn {
+  padding: .3rem .45rem;
+  font-size: .9rem;
+  line-height: 1;
+  border-radius: .6rem;
+}
+
+/* במובייל – העברת האייקונים לשורה משלהם, הכל זורם אנכית */
+@media (max-width: 768px) {
+  .event-card { 
+    grid-template-columns: 1fr;      /* עמודה אחת */
+  }
+  .event-card .button-container {
+    order: 3;                         /* למטה */
+    justify-content: flex-end;
+  }
+}
+
+/* 4) בועות ההודעות – קצת יותר מרווח וצפיפות טובה במובייל */
+@media (max-width: 768px) {
+  .message { 
+    max-width: 88vw; 
+  }
+}
+
+/* 5) שוליים פנימיים עדינים בקונטיינר במובייל */
+@media (max-width: 576px) {
+  #chatPage.container {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
