@@ -164,3 +164,84 @@ body { margin: 0; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
     padding-right: 8px;
   }
 }
+
+
+
+/* ============ MOBILE HERO FOR LOGIN (app/index.html) ============ */
+/* מגדיל טיפוגרפיה וכפתור, ממרכז אנכית כמו בדף ה-Launch */
+@media (max-width: 768px) {
+  .chat-container.text-center {
+    min-height: 75dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1.25rem;
+  }
+  .chat-container.text-center h1 {
+    font-size: 1.8rem;
+    margin-bottom: .5rem;
+  }
+  .chat-container.text-center p {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 1rem;
+  }
+  #authorizeButton {
+    font-size: 1rem;
+    padding: .9rem 1.25rem;
+    border-radius: .75rem;
+  }
+}
+
+/* ============ CHAT HEADER WRAP (מונע חפיפה בשורה העליונה) ============ */
+#chatPage .d-flex.justify-content-between.align-items-center {
+  flex-wrap: wrap;        /* מאפשר ירידת שורה נקייה */
+  gap: .5rem 1rem;        /* רווחים */
+}
+#chatPage .d-flex.justify-content-between.align-items-center .form-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  margin-bottom: 0;
+}
+#calendarSelect { max-width: 240px; }
+@media (max-width: 768px) {
+  #calendarSelect { max-width: min(65vw, 320px); }
+  #logoutButton { padding: .375rem .6rem; font-size: .9rem; }
+  label[for="calendarSelect"] { font-size: .9rem; margin: 0; }
+}
+
+/* ============ EVENT CARDS FALLBACK (בלי חפיפות) ============ */
+/* אם הכרטיסים אצלך הם .card של Bootstrap (ולא .event-card), זה מסדר את הפריסה */
+#chatWindow .card {
+  display: grid;
+  grid-template-columns: 1fr auto;   /* טקסט | כפתורים */
+  gap: .5rem 1rem;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  overflow-wrap: anywhere;           /* שובר מילים ארוכות/עברית */
+}
+#chatWindow .card .btn-group,
+#chatWindow .card .buttons,
+#chatWindow .card .button-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+#chatWindow .card .btn {
+  padding: .3rem .45rem;
+  font-size: .9rem;
+  line-height: 1;
+  border-radius: .6rem;
+}
+@media (max-width: 768px) {
+  #chatWindow .card { grid-template-columns: 1fr; }
+}
+
+/* שבירת שורות בטוחה בכל הבועות/כרטיסים */
+#chatWindow, #chatWindow .message, #chatWindow .card {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
