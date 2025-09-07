@@ -24,32 +24,32 @@
 
   <!-- Guard + authorizedFetch setup -->
   <script>
-    (function () {
-      // 1) Require JWT to view this page
-      const token = localStorage.getItem("AUTH_TOKEN");
-      if (!token) {
-        console.log("token not found");
-        window.location.href = "/app/index.html";
-        return;
-      }
-      else{
-        console.log("token found");
-      }
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("token");
 
-      // 2) A single helper for all API calls (uses API_BASE from config.js)
-      window.authorizedFetch = function (path, options = {}) {
-        const headers = new Headers(options.headers || {});
-        headers.set("Authorization", `Bearer ${token}`);
-        return fetch(`${(window.APP_CONFIG && window.APP_CONFIG.API_BASE) || window.API_BASE}${path}`, {
-          ...options,
-          headers
-        });
-      };
+  if (token) {
+    // שומר את ה-JWT ואז מנקה את ה-URL
+    localStorage.setItem("AUTH_TOKEN", token);
+    const clean = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, document.title, clean);
+    // קדימה לצ'אט
+    window.location.href = "/app/chat.html";
+    return;
+  }
 
-      // 3) Optional: expose token if some legacy JS expects it
-      window.__JWT__ = token;
-    })();
-  </script>
+  const base = (window.APP_CONFIG.API_BASE || '').replace(/\/+$/, '');
+  const API_BASE = base.endsWith('/api') ? base : base + '/api';
+
+  const feBase = (window.APP_CONFIG.FRONTEND_BASE || window.location.origin).replace(/\/+$/, '');
+  // ⬅️⬅️ חשוב: redirect בחזרה ל־index
+  const next = encodeURIComponent(`${feBase}/app/index.html`);
+
+  const loginUrl = `${API_BASE}/auth/google/login?next=${next}`;
+  document.getElementById("loginLink").href = loginUrl;
+})();
+</script>
+
 </head>
 <body>
   <div id="chatPage" class="chat-container container mt-3">
