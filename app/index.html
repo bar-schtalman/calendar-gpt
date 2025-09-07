@@ -37,12 +37,13 @@
 const base = (window.APP_CONFIG.API_BASE || '').replace(/\/+$/, '');
 const API_BASE = base.endsWith('/api') ? base : base + '/api';
 
-// בלי query string בכלל:
 const feBase = (window.APP_CONFIG.FRONTEND_BASE || window.location.origin).replace(/\/+$/, '');
-const next = encodeURIComponent(`${feBase}/app/chat.html`);
+// חשוב: next -> חוזר ל-index
+const next = encodeURIComponent(`${feBase}/app/index.html`);
 
 const loginUrl = `${API_BASE}/auth/google/login?next=${next}`;
 document.getElementById("loginLink").href = loginUrl;
+
 
 
     })();
